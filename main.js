@@ -16,15 +16,26 @@ var config = require("./library/config");
 var fileSystem = require('fs');
 var Customer = require("./library/Customer");
 
+// Reading in customer json file.
+var customerArray = new Array();
+var rawdata = fileSystem.readFileSync('data/Users.json');
+if (rawdata.length > 0)
+{
+  var objects = JSON.parse(rawdata);
+  for(var i = 0; i < objects.length; ++i)
+  {
+    var user = objects[i];
+    customerArray.push(new Customer(user['firstName'], user['lastName'], user['email'], user['address'], user['userName'], user['password']));
+  }
+}
 function CreateNewUser(queryValue, response)
 {
-  // use post['blah'], etc.
   var newCustomer = new Customer(queryValue['first'], queryValue['last'], queryValue['email'], queryValue['address'], queryValue['username'], queryValue['password']);
+  customerArray.push(newCustomer);
+  fileSystem.writeFileSync('data/Users.json', JSON.stringify(customerArray));
 
-//TODO: Add this to the user.json file.
-//TODO: read in the user.json at server startup.
-//TODO:
-console.log(JSON.stringify(newCustomer));
+ //TODO: Check for duplicates
+//TODO: populate and add toppings to toppings json.
 
   // Return the response
  //response.setHeader('Content-Type', 'application/json');
@@ -33,7 +44,7 @@ console.log(JSON.stringify(newCustomer));
  response.end('New user created.');
 }
 
-// Function used for parsing server rrequest.
+// Function used for parsing server request.
 function unifiedServerCode(request, response)
 {
  // Parse the url
@@ -41,7 +52,6 @@ function unifiedServerCode(request, response)
 
  // Get the query string as an object.
  var queryStringObject = parsedUrl.query;
- //console.log(queryStringObject);
 
   // Get the path
   var path = parsedUrl.pathname;
