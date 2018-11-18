@@ -1,9 +1,9 @@
-/***************************************************************
+/******************************************************************************************
 * Title: main.js
 * Author: Franklin Ludgood
 * Project: Pizza Server Backend.
 * Date Created: 10-17-2018
-***************************************************************/
+******************************************************************************************/
 
 // Includes for project
 var https = require("https");
@@ -15,6 +15,11 @@ var url = require("url");
 var config = require("./library/config");
 var fileSystem = require('fs');
 var Customer = require("./library/Customer");
+var Tolken = require("./library/Tolken");
+
+// Global variables.
+var tolkenArray = new Array();
+var timeToLive = 900000;
 
 // Reading in customer json file.
 var customerArray = new Array();
@@ -28,13 +33,71 @@ if (rawdata.length > 0)
     customerArray.push(new Customer(user['firstName'], user['lastName'], user['email'], user['address'], user['userName'], user['password']));
   }
 }
+
+/*
+* Function used for login.
+*/
+function Login(queryValue, response)
+{
+  // checkout make sure that it is not logged in.
+  for(var i = 0; i <  tolkenArray.length; ++i)
+  {
+    if (tolkenArray[i].getCustomer().getUserName() === queryValue['username'])
+    {
+      response.setHeader('Content-Type', 'text/plain');
+      response.writeHead(409);
+      response.end('Already logged in.');
+      return;
+    }
+  }
+  
+  for(var i = 0; i < customerArray.length; ++i)
+  {
+    if (customerArray[i].getUserName() === queryValue['username'])
+    {
+       if (customerArray[i].getPassWord() ===  queryValue['passphrase'])
+       {
+         var tolken = new Tolken(timeToLive, customerArray[i]);
+         tolkenArray.push(tolken);
+         response.setHeader('Content-Type', 'text/plain');
+         response.writeHead(200);
+         response.end(tolken.getID());
+         return;
+       }
+       else
+       {
+         response.setHeader('Content-Type', 'text/plain');
+         response.writeHead(409);
+         response.end('Wrong password.');
+         return;
+       }
+    }
+  }
+
+  response.setHeader('Content-Type', 'text/plain');
+  response.writeHead(409);
+  response.end('Could not log in.');
+}
+
+/*
+* Function used for creating new users.
+*/
 function CreateNewUser(queryValue, response)
 {
   var newCustomer = new Customer(queryValue['first'], queryValue['last'], queryValue['email'], queryValue['address'], queryValue['username'], queryValue['password']);
+  for(var i = 0; i < customerArray.length; ++i)
+  {
+    if ((customerArray[i].getUserName() === newCustomer.getUserName()) || (customerArray[i].getEmail() === newCustomer.getEmail()))
+    {
+      response.setHeader('Content-Type', 'text/plain');
+      response.writeHead(409);
+      response.end('Created User Failed.');
+      return;
+    }
+  }
   customerArray.push(newCustomer);
   fileSystem.writeFileSync('data/Users.json', JSON.stringify(customerArray));
 
- //TODO: Check for duplicates
 //TODO: populate and add toppings to toppings json.
 
   // Return the response
@@ -70,6 +133,19 @@ function unifiedServerCode(request, response)
       buffer += decoder.end();
       CreateNewUser(queryStringObject, response);
     });
+  }
+
+  if (request.method == 'GET' && trimmedPath === 'login')
+  {
+    request.on('data', function (data) {
+      buffer += decoder.write(data);
+    });
+
+    request.on('end', function () {
+      buffer += decoder.end();
+      Login(queryStringObject, response);
+    });
+
   }
 }
 

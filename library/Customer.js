@@ -6,7 +6,6 @@
 ***************************************************************/
 var crypto = require("crypto");
 
-const idLength = 64;
 const SodaPrice = 2.0;
 var SizeEnum  = Object.freeze({"small":0, "medium":1, "large":2, "extraLarge":3});
 var SizePrice = Object.freeze({"small":3.75, "medium":4.75, "large":5.75, "extraLarge":6.75});
@@ -35,20 +34,13 @@ module.exports = class Customer
   setAddress(address) {this.address = address;}
 
   getUserName() {return this.userName;}
-  setUserName(userName) {this.userName = userName;}  
+  setUserName(userName) {this.userName = userName;}
+
+  getPassWord() {return this.password;}
+  setPassWord(password) {this.password = password;}
 }
 
 /*
-class Tolken
-{
-  constructor()
-  {
-    this.id = {};
-    this.timeToLive = {};
-    this.customer = {};
-  }
-
-}
 
 class Topping
 {
