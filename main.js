@@ -6,19 +6,19 @@
 ******************************************************************************************/
 
 // Includes for project
-var https = require("https");
-var http = require("http");
-var StringDecoder = require('string_decoder').StringDecoder;
-var queryString = require('querystring');
+const https = require("https");
+const http = require("http");
+const StringDecoder = require('string_decoder').StringDecoder;
+const queryString = require('querystring');
 
-var url = require("url");
-var config = require("./library/config");
-var fileSystem = require('fs');
-var Customer = require("./library/Customer");
-var Tolken = require("./library/Tolken");
+const url = require("url");
+const config = require("./library/config");
+const fileSystem = require('fs');
+const Customer = require("./library/Customer");
+const Tolken = require("./library/Tolken");
 
 // Global variables.
-var tolkenArray = new Array();
+var tolkenMap = new Map();
 var timeToLive = 900000;
 
 // Reading in customer json file.
@@ -35,14 +35,40 @@ if (rawdata.length > 0)
 }
 
 /*
+* Function used for logout
+*/
+function Logout(queryValue, response)
+{
+  let tolken = tolkenMap.get(queryValue['tolken'].toString());
+  if (tolken != undefined)
+  {
+    if (tolken.customer.userName === queryValue['username'])
+    {
+      if (tolkenMap.delete(queryValue['tolken'].toString()))
+      {
+        response.setHeader('Content-Type', 'text/plain');
+        response.writeHead(200);
+        response.end('Successfully logged off.');
+        return;
+      }
+    }
+  }
+
+  response.setHeader('Content-Type', 'text/plain');
+  response.writeHead(409);
+  response.end('Error could not logout.');
+}
+
+/*
 * Function used for login.
 */
 function Login(queryValue, response)
 {
   // checkout make sure that it is not logged in.
-  for(var i = 0; i <  tolkenArray.length; ++i)
+  for(const entry of tolkenMap)
   {
-    if (tolkenArray[i].getCustomer().getUserName() === queryValue['username'])
+    let object = Object.values(entry);
+    if (object[1].customer.userName === queryValue['username'])
     {
       response.setHeader('Content-Type', 'text/plain');
       response.writeHead(409);
@@ -50,18 +76,18 @@ function Login(queryValue, response)
       return;
     }
   }
-  
-  for(var i = 0; i < customerArray.length; ++i)
+
+  for(let i = 0; i < customerArray.length; ++i)
   {
     if (customerArray[i].getUserName() === queryValue['username'])
     {
        if (customerArray[i].getPassWord() ===  queryValue['passphrase'])
        {
          var tolken = new Tolken(timeToLive, customerArray[i]);
-         tolkenArray.push(tolken);
+         tolkenMap.set(tolken.getID().toString(), tolken);
          response.setHeader('Content-Type', 'text/plain');
          response.writeHead(200);
-         response.end(tolken.getID());
+         response.end(tolken.getID().toString());
          return;
        }
        else
@@ -73,7 +99,6 @@ function Login(queryValue, response)
        }
     }
   }
-
   response.setHeader('Content-Type', 'text/plain');
   response.writeHead(409);
   response.end('Could not log in.');
@@ -97,8 +122,6 @@ function CreateNewUser(queryValue, response)
   }
   customerArray.push(newCustomer);
   fileSystem.writeFileSync('data/Users.json', JSON.stringify(customerArray));
-
-//TODO: populate and add toppings to toppings json.
 
   // Return the response
  //response.setHeader('Content-Type', 'application/json');
@@ -146,6 +169,18 @@ function unifiedServerCode(request, response)
       Login(queryStringObject, response);
     });
 
+  }
+
+  if (request.method == 'POST' && trimmedPath === 'logout')
+  {
+    request.on('data', function (data) {
+      buffer += decoder.write(data);
+    });
+
+    request.on('end', function () {
+      buffer += decoder.end();
+      Logout(queryStringObject, response);
+    });
   }
 }
 

@@ -12,7 +12,7 @@ module.exports = class Tolken
 {
   constructor(timeToLive, customer)
   {
-    this.id = crypto.randomBytes(idLength);
+    this.id = crypto.randomBytes(idLength).toString('hex');
     this.timeToLive = timeToLive;
     this.previousTime = Date.now();
     this.customer = customer;
