@@ -1,0 +1,84 @@
+{
+"Small":{
+ "size": "small",
+ "price": 3.75
+},
+"Medium":{
+ "size": "medium",
+ "price": 4.75
+},
+"Large":{
+ "size": "large",
+ "price": 5.75
+},
+"Toppings": [
+{
+ "type": "Pepperoni",
+ "price": 1.75
+},
+{
+ "type": "Ham",
+ "price": 1.5
+},
+{
+ "type": "Beef",
+ "price": 2.0
+},
+{
+ "type": "Italian Sausage",
+ "price": 1.9
+},
+{
+ "type": "Bacon",
+ "price": 1.25
+},
+{
+ "type": "Black Olives",
+ "price": 0.75
+},
+{
+ "type": "Pineapple",
+ "price": 0.5
+},
+{
+ "type": "Onions",
+ "price": 0.25
+},
+{
+ "type": "Mushrooms",
+ "price": 0.35
+},
+{
+ "type": "Bell Peppers",
+ "price": 0.79
+},
+{
+ "type": "Grilled Chicken",
+ "price": 1.09
+},
+{
+ "type": "Basil",
+ "price": 0.9
+},
+{
+ "type": "BBQ Sauce",
+ "price": 0.55
+},
+{
+ "type": "Pizza Sauce",
+ "price": 0.6
+},
+{
+ "type": "Pickles",
+ "price": 0.35
+},
+{
+ "type": "Cheese",
+ "price": 1.35
+},
+{
+ "type": "Tomatoes",
+ "price": 0.85
+}
+]
+}

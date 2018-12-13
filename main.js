@@ -17,22 +17,57 @@ const fileSystem = require('fs');
 const Customer = require("./library/Customer");
 const Tolken = require("./library/Tolken");
 
+// Path to External resources.
+//const pizzaLandingCSS    = "data/httpFiles/source/PizzaLanding.css";
+//const pizzaLandingScript = "data/httpFiles/source/PizzaLanding.js";
+
+
 // Global variables.
 var tolkenMap = new Map();
 var timeToLive = 900000;
+
+// reading in html files.
+var IntroHtml       = fileSystem.readFileSync('data/httpFiles/PizzaLanding.html');
+var IntroCss        = fileSystem.readFileSync('data/httpFiles/source/PizzaLanding.css');
+var IntroJavaScript = fileSystem.readFileSync('data/httpFiles/source/PizzaLanding.js');
 
 // Reading in customer json file.
 var customerArray = new Array();
 var rawdata = fileSystem.readFileSync('data/Users.json');
 if (rawdata.length > 0)
 {
-  var objects = JSON.parse(rawdata);
-  for(var i = 0; i < objects.length; ++i)
+  let objects = JSON.parse(rawdata);
+  for(let i = 0; i < objects.length; ++i)
   {
-    var user = objects[i];
+    let user = objects[i];
     customerArray.push(new Customer(user['firstName'], user['lastName'], user['email'], user['address'], user['userName'], user['password']));
   }
 }
+
+// Reading in toppings json file.
+var toppingArray = new Array();
+rawdata = fileSystem.readFileSync('data/Toppings.json');
+if (rawdata.length > 0)
+{
+  let objects = JSON.parse(rawdata);
+  let small =  objects['Small'];
+  let medium =  objects['Medium'];
+  let large =  objects['Large'];
+  var LargePrice = large['price'];
+  var MediumPrice = medium['price'];
+  var SmallPrice =  small['price'];
+
+  //TODO: add add toppings to toppings array.
+  //for()
+}
+
+/*
+* Function used to send html.
+*/
+//function SendingHtml()
+//{
+
+//}
 
 /*
 * Function used for logout
@@ -146,6 +181,28 @@ function unifiedServerCode(request, response)
    // Get the payload
    var decoder = new StringDecoder('utf-8');
    var buffer = '';
+
+   if ((request.method == 'GET' || request.method == 'POST') &&  trimmedPath === 'PizzaLanding.css')
+   {
+     response.setHeader("Content-Type", "text/css");
+     response.writeHead(200);
+     response.end(IntroCss);
+   }
+
+   if ((request.method == 'GET' || request.method == 'POST') &&  trimmedPath === 'PizzaLanding.js')
+   {
+     response.setHeader("Content-Type", "text/javascript");
+     response.writeHead(200);
+     response.end(IntroJavaScript);
+   }
+
+   if (request.method == 'GET' && trimmedPath === '')
+   {
+     response.setHeader("Content-Type", "text/html");
+     response.writeHead(200);
+     response.end(IntroHtml);
+   }
+
    if (request.method == 'POST' && trimmedPath === 'newuser')
    {
       request.on('data', function (data) {
