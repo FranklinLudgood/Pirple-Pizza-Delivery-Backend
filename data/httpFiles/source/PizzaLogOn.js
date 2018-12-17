@@ -11,3 +11,13 @@ function onClicked()
 {
 
 }
+
+function onMouseOverLogOn(component)
+{
+
+}
+
+function onMouseOutLogOn(component)
+{
+
+}

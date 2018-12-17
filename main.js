@@ -17,11 +17,6 @@ const fileSystem = require('fs');
 const Customer = require("./library/Customer");
 const Tolken = require("./library/Tolken");
 
-// Path to External resources.
-//const pizzaLandingCSS    = "data/httpFiles/source/PizzaLanding.css";
-//const pizzaLandingScript = "data/httpFiles/source/PizzaLanding.js";
-
-
 // Global variables.
 var tolkenMap = new Map();
 var timeToLive = 900000;
@@ -30,6 +25,16 @@ var timeToLive = 900000;
 var IntroHtml       = fileSystem.readFileSync('data/httpFiles/PizzaLanding.html');
 var IntroCss        = fileSystem.readFileSync('data/httpFiles/source/PizzaLanding.css');
 var IntroJavaScript = fileSystem.readFileSync('data/httpFiles/source/PizzaLanding.js');
+
+// log on to
+var LogOnHtml       = fileSystem.readFileSync('data/httpFiles/PizzaLogOn.html');
+var LogOnCss        = fileSystem.readFileSync('data/httpFiles/source/PizzaLogOn.css');
+var LogOnJavaScript = fileSystem.readFileSync('data/httpFiles/source/PizzaLogOn.js');
+
+// Sign Up Pizza Delivery.
+var SignUpHtml       = fileSystem.readFileSync('data/httpFiles/PizzaSignUp.html');
+var SignUpCss        = fileSystem.readFileSync('data/httpFiles/source/PizzaSignUp.css');
+var SignUpJavaScript = fileSystem.readFileSync('data/httpFiles/source/PizzaSignUp.js');
 
 // Reading in customer json file.
 var customerArray = new Array();
@@ -60,14 +65,6 @@ if (rawdata.length > 0)
   //TODO: add add toppings to toppings array.
   //for()
 }
-
-/*
-* Function used to send html.
-*/
-//function SendingHtml()
-//{
-
-//}
 
 /*
 * Function used for logout
@@ -181,6 +178,48 @@ function unifiedServerCode(request, response)
    // Get the payload
    var decoder = new StringDecoder('utf-8');
    var buffer = '';
+
+   if(request.method == "GET" && trimmedPath === "PizzaSignUp.html")
+   {
+     response.setHeader("Content-Type", "text/html");
+     response.writeHead(200);
+     response.end(SignUpHtml);
+   }
+
+   if ((request.method == 'GET' || request.method == 'POST') &&  trimmedPath === 'PizzaSignUp.css')
+   {
+     response.setHeader("Content-Type", "text/css");
+     response.writeHead(200);
+     response.end(SignUpCss);
+   }
+
+   if ((request.method == 'GET' || request.method == 'POST') &&  trimmedPath === 'PizzaSignUp.js')
+   {
+     response.setHeader("Content-Type", "text/javascript");
+     response.writeHead(200);
+     response.end(SignUpJavaScript);
+   }
+
+  if(request.method == "GET" && trimmedPath === "PizzaLogOn.html")
+  {
+    response.setHeader("Content-Type", "text/html");
+    response.writeHead(200);
+    response.end(LogOnHtml);
+  }
+
+  if ((request.method == 'GET' || request.method == 'POST') &&  trimmedPath === 'PizzaLogOn.css')
+  {
+    response.setHeader("Content-Type", "text/css");
+    response.writeHead(200);
+    response.end(LogOnCss);
+  }
+
+  if ((request.method == 'GET' || request.method == 'POST') &&  trimmedPath === 'PizzaLogOn.js')
+  {
+    response.setHeader("Content-Type", "text/javascript");
+    response.writeHead(200);
+    response.end(LogOnJavaScript);
+  }
 
    if ((request.method == 'GET' || request.method == 'POST') &&  trimmedPath === 'PizzaLanding.css')
    {
