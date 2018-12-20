@@ -36,6 +36,12 @@ var SignUpHtml       = fileSystem.readFileSync('data/httpFiles/PizzaSignUp.html'
 var SignUpCss        = fileSystem.readFileSync('data/httpFiles/source/PizzaSignUp.css');
 var SignUpJavaScript = fileSystem.readFileSync('data/httpFiles/source/PizzaSignUp.js');
 
+// Pizza Ordering.
+var HeaderPizzaOrder      = fileSystem.readFileSync('data/httpFiles/header.html');
+var FooterPizzaOrder      = fileSystem.readFileSync('data/httpFiles/footer.html');
+var PizzaOrderCss         = fileSystem.readFileSync('data/httpFiles/source/PizzaOrder.css');
+var PizzaSignUpJavaScript = fileSystem.readFileSync('data/httpFiles/source/PizzaOrder.js');
+
 // Reading in customer json file.
 var customerArray = new Array();
 var rawdata = fileSystem.readFileSync('data/Users.json');
@@ -50,7 +56,7 @@ if (rawdata.length > 0)
 }
 
 // Reading in toppings json file.
-var toppingArray = new Array();
+//var toppingArray = new Array();
 rawdata = fileSystem.readFileSync('data/Toppings.json');
 if (rawdata.length > 0)
 {
@@ -62,8 +68,7 @@ if (rawdata.length > 0)
   var MediumPrice = medium['price'];
   var SmallPrice =  small['price'];
 
-  //TODO: add add toppings to toppings array.
-  //for()
+  var toppingArray = objects['Toppings'];
 }
 
 /*
@@ -115,11 +120,36 @@ function Login(queryValue, response)
     {
        if (customerArray[i].getPassWord() ===  queryValue['passphrase'])
        {
-         var tolken = new Tolken(timeToLive, customerArray[i]);
-         tolkenMap.set(tolken.getID().toString(), tolken);
-         response.setHeader('Content-Type', 'text/plain');
+         let header = "<h1>Rashaan's Pizza Shack!!</h1>";
+         let toppings = '';
+         let sizeRadio  = "<input type=\"radio\" id=\"small\" name=\"size\" value=\"${SmallPrice}\"> Small";
+         sizeRadio     += "<input type=\"radio\" id=\"medium\" name=\"size\" value=\"${MediumPrice}\"> Medium";
+         sizeRadio     += "<input type=\"radio\" id=\"larger\" name=\"size\" value=\"${LargePrice}\"> Large";
+
+          for (let j = 0; j < toppingArray.length; ++j)
+          {
+           let label = toppingArray[j]['type'];
+           let value = toppingArray[j]['price'];
+           toppings += "<input type=\"checkbox\" id=\"${toppingArray['type']}\" name=\"topping\" value=\"" +  value.toString() + "\">" + label.toString();
+          }
+
+          let buttons =  "<button type=\"button\" id=\"Checkout\" onclick=\"onClickedCheckout()\" onmouseover=\"onMouseOverCheckout(this)\" onmouseout=\"onMouseOutCheckout(this)\">Checkout</button>";
+          buttons     += "<button type=\"button\" id=\"LogOut\" onclick=\"onClickedLogOut()\" onmouseover=\"onMouseOverLogOut(this)\" onmouseout=\"onMouseOutLogOut(this)\">Log Out</button>";
+          let script = "<script type=\"text/javascript\" src=\"PizzaOrder.js\"></script>";
+
+
+         //var tolken = new Tolken(timeToLive, customerArray[i]);
+         //tolkenMap.set(tolken.getID().toString(), tolken);
+         let htmlFile  = HeaderPizzaOrder;
+         htmlFile     += header;
+         htmlFile     += sizeRadio;
+         htmlFile     += toppings;
+         htmlFile     += buttons;
+         htmlFile     += script;
+         htmlFile     += FooterPizzaOrder;
+         response.setHeader('Content-Type', 'text/html');
          response.writeHead(200);
-         response.end(tolken.getID().toString());
+         response.end(htmlFile);
          return;
        }
        else
@@ -184,6 +214,20 @@ function unifiedServerCode(request, response)
      response.setHeader("Content-Type", "text/html");
      response.writeHead(200);
      response.end(SignUpHtml);
+   }
+
+   if ((request.method == 'GET' || request.method == 'POST') &&  trimmedPath === 'PizzaOrder.css')
+   {
+     response.setHeader("Content-Type", "text/css");
+     response.writeHead(200);
+     response.end(PizzaOrderCss);
+   }
+
+   if ((request.method == 'GET' || request.method == 'POST') &&  trimmedPath === 'PizzaOrder.js')
+   {
+     response.setHeader("Content-Type", "text/javascript");
+     response.writeHead(200);
+     response.end(PizzaSignUpJavaScript);
    }
 
    if ((request.method == 'GET' || request.method == 'POST') &&  trimmedPath === 'PizzaSignUp.css')
