@@ -16,6 +16,7 @@ const config = require("./library/config");
 const fileSystem = require('fs');
 const Customer = require("./library/Customer");
 const Tolken = require("./library/Tolken");
+var  commandLine = require("./library/cli");
 
 // Global variables.
 var tolkenMap = new Map();
@@ -120,6 +121,10 @@ function Login(queryValue, response)
     {
        if (customerArray[i].getPassWord() ===  queryValue['passphrase'])
        {
+         let tolken = new Tolken(timeToLive, customerArray[i]);
+         tolkenMap.set(tolken.getID().toString(), tolken);
+
+         // Sending http file.
          let header = "<h1>Rashaan's Pizza Shack!!</h1>";
          let toppings = '';
          let sizeRadio  = "<input type=\"radio\" id=\"small\" name=\"size\" value=\"${SmallPrice}\"> Small";
@@ -138,8 +143,6 @@ function Login(queryValue, response)
           let script = "<script type=\"text/javascript\" src=\"PizzaOrder.js\"></script>";
 
 
-         //var tolken = new Tolken(timeToLive, customerArray[i]);
-         //tolkenMap.set(tolken.getID().toString(), tolken);
          let htmlFile  = HeaderPizzaOrder;
          htmlFile     += header;
          htmlFile     += sizeRadio;
@@ -323,6 +326,51 @@ function unifiedServerCode(request, response)
     });
   }
 }
+
+commandLine.callbacks.login = function(str)
+{
+  console.log("************************************************************");
+  console.log("*               Customer's Login                           *");
+  console.log("************************************************************");
+  console.log("Number of people logged on: " +  tolkenMap.size);
+  for(const entry of tolkenMap)
+  {
+    let object = Object.values(entry);
+    let customer =  "Last Name: " + object[1].customer.lastName.toString() + " First Name: " +  object[1].customer.firstName + " email: " + object[1].customer.email.toString();
+    console.log(customer);
+  }
+}
+
+commandLine.callbacks.registered = function(str)
+{
+  console.log("************************************************************");
+  console.log("*            Registered Customer                           *");
+  console.log("************************************************************");
+  for(let i = 0; i < customerArray.length; ++i)
+  {
+    let customer = "Last Name: " + customerArray[i].lastName.toString() + " First Name: " +  customerArray[i].firstName + " email: " + customerArray[i].email.toString();
+    console.log(customer);
+  }
+}
+
+commandLine.callbacks.toppings = function(str)
+{
+  console.log("************************************************************");
+  console.log("*                PIZZA TOPPINGS                            *");
+  console.log("************************************************************");
+  for (let j = 0; j < toppingArray.length; ++j)
+  {
+   let label = toppingArray[j]['type'];
+   let value = toppingArray[j]['price'];
+   let toppings = label.toString() + ": " +  value.toString();
+   console.log(toppings);
+  }
+}
+
+// Starting the cli and timing
+setTimeout(function(){
+  commandLine.init();
+}, 500);
 
 // Creating http server.
 var httpServer = http.createServer(function(request, response)

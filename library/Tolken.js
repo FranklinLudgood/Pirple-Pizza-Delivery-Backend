@@ -33,6 +33,6 @@ module.exports = class Tolken
   resetTimer()
   {
     this.previousTime = Date.now();
-    this.id = crypto.randomBytes(idLength);
+    this.id = crypto.randomBytes(idLength).toString('hex');
   }
 }
